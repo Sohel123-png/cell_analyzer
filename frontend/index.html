@@ -1,0 +1,1282 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Cell Analyzer</title>
+
+    <meta
+        name="description"
+        content="Microscopy image analysis, cell segmentation and quantitative feature extraction."
+    >
+
+    <link
+        rel="stylesheet"
+        href="/style.css"
+    >
+
+</head>
+
+
+<body>
+
+<div class="app">
+
+
+    <!-- =====================================================
+         SIDEBAR
+    ====================================================== -->
+
+    <aside class="sidebar">
+
+        <div class="brand">
+
+            <div class="brand-mark">
+
+                <span></span>
+                <span></span>
+                <span></span>
+                <span></span>
+
+            </div>
+
+            <div class="brand-copy">
+
+                <strong>
+                    Cell Analyzer
+                </strong>
+
+                <small>
+                    Microscopy Intelligence
+                </small>
+
+            </div>
+
+        </div>
+
+
+        <nav class="navigation">
+
+            <a
+                href="#analysis"
+                class="nav-item active"
+                data-nav="analysis"
+            >
+                <span class="nav-icon">⌁</span>
+                <span>Analysis</span>
+            </a>
+
+
+            <a
+                href="#results"
+                class="nav-item"
+                data-nav="results"
+            >
+                <span class="nav-icon">◫</span>
+                <span>Results</span>
+            </a>
+
+
+            <a
+                href="#features"
+                class="nav-item"
+                data-nav="features"
+            >
+                <span class="nav-icon">▦</span>
+                <span>Cell Features</span>
+            </a>
+
+        </nav>
+
+
+        <div class="sidebar-footer">
+
+            <div class="engine-status">
+
+                <span
+                    class="status-dot"
+                    id="engineDot"
+                ></span>
+
+                <div>
+
+                    <strong>
+                        Analysis Engine
+                    </strong>
+
+                    <small id="engineStatus">
+                        Checking backend...
+                    </small>
+
+                </div>
+
+            </div>
+
+
+            <div class="version">
+                v1.0.0 · Local
+            </div>
+
+        </div>
+
+    </aside>
+
+
+
+    <!-- =====================================================
+         MAIN
+    ====================================================== -->
+
+    <main class="main-content">
+
+
+        <!-- =================================================
+             HEADER
+        ================================================== -->
+
+        <header class="topbar">
+
+            <div>
+
+                <span class="eyebrow">
+                    MICROSCOPY ANALYSIS
+                </span>
+
+                <h1>
+                    Cell Analysis Workspace
+                </h1>
+
+            </div>
+
+
+            <div class="system-pill">
+
+                <span
+                    class="status-dot"
+                    id="topStatusDot"
+                ></span>
+
+                <span id="topStatusText">
+                    System Ready
+                </span>
+
+            </div>
+
+        </header>
+
+
+
+        <!-- =================================================
+             WORKSPACE
+        ================================================== -->
+
+        <div class="workspace">
+
+
+            <!-- =============================================
+                 ANALYSIS
+            ============================================== -->
+
+            <section
+                id="analysis"
+                class="workspace-section"
+            >
+
+
+                <div class="section-header">
+
+                    <div>
+
+                        <span class="section-label">
+                            INPUT
+                        </span>
+
+                        <h2>
+                            Upload Microscopy Image
+                        </h2>
+
+                        <p>
+                            Upload a microscopy image to start
+                            automated cell analysis.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- =========================================
+                     UPLOAD CARD
+                ========================================== -->
+
+                <div class="card upload-card">
+
+
+                    <div
+                        class="drop-zone"
+                        id="dropZone"
+                        role="button"
+                        tabindex="0"
+                        aria-label="Upload a microscopy image"
+                    >
+
+                        <input
+                            type="file"
+                            id="imageInput"
+                            accept=".png,.jpg,.jpeg,.jfif,.tif,.tiff"
+                            hidden
+                        >
+
+
+                        <div class="upload-symbol">
+
+                            <span>+</span>
+
+                        </div>
+
+
+                        <h3>
+                            Drop your image here
+                        </h3>
+
+                        <p>
+                            or click to browse
+                        </p>
+
+
+                        <small>
+                            PNG · JPG · JPEG · JFIF · TIF · TIFF · Max 50 MB
+                        </small>
+
+                    </div>
+
+
+
+                    <!-- Selected File -->
+
+                    <div
+                        id="selectedFile"
+                        class="selected-file hidden"
+                    >
+
+                        <div
+                            class="file-thumb"
+                            id="fileThumb"
+                        >
+                            IMG
+                        </div>
+
+
+                        <div class="file-details">
+
+                            <strong id="fileName">
+                                No file selected
+                            </strong>
+
+                            <span id="fileSize">
+                                0 KB
+                            </span>
+
+                        </div>
+
+
+                        <button
+                            type="button"
+                            id="removeFile"
+                            class="icon-button"
+                            title="Remove image"
+                            aria-label="Remove selected image"
+                        >
+                            ×
+                        </button>
+
+                    </div>
+
+
+
+                    <!-- Image Preview -->
+
+                    <div
+                        id="uploadPreview"
+                        class="upload-preview hidden"
+                    >
+
+                        <div class="preview-header">
+
+                            <span>
+                                IMAGE PREVIEW
+                            </span>
+
+                            <span id="previewDimensions">
+                                -
+                            </span>
+
+                        </div>
+
+
+                        <div class="preview-image-box">
+
+                            <img
+                                id="previewImage"
+                                alt="Uploaded microscopy image"
+                            >
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- Analyze -->
+
+                    <button
+                        type="button"
+                        id="analyzeButton"
+                        class="primary-button"
+                        disabled
+                    >
+
+                        <span id="analyzeButtonLabel">
+                            Analyze Image
+                        </span>
+
+                        <span>
+                            →
+                        </span>
+
+                    </button>
+
+
+
+                    <!-- Loading -->
+
+                    <div
+                        id="loadingState"
+                        class="loading-state hidden"
+                        role="status"
+                        aria-live="polite"
+                    >
+
+                        <div class="spinner"></div>
+
+                        <div>
+
+                            <strong>
+                                Analyzing microscopy image
+                            </strong>
+
+                            <span id="loadingStage">
+                                Preprocessing · Segmentation · Feature extraction
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- Message -->
+
+                    <div
+                        id="messageBox"
+                        class="message hidden"
+                        role="alert"
+                    ></div>
+
+                </div>
+
+
+
+                <!-- =========================================
+                     IMAGE UNDERSTANDING
+                ========================================== -->
+
+                <section
+                    id="understandingSection"
+                    class="card result-card hidden"
+                >
+
+                    <div class="section-header compact">
+
+                        <div>
+
+                            <span class="section-label">
+                                IMAGE UNDERSTANDING
+                            </span>
+
+                            <h2>
+                                What the system observed
+                            </h2>
+
+                        </div>
+
+
+                        <span
+                            id="readyBadge"
+                            class="ready-badge"
+                        >
+                            Analysis Ready
+                        </span>
+
+                    </div>
+
+
+
+                    <div class="info-grid">
+
+
+                        <div class="info-card">
+
+                            <span>
+                                Image Type
+                            </span>
+
+                            <strong id="imageCategory">
+                                -
+                            </strong>
+
+                        </div>
+
+
+                        <div class="info-card">
+
+                            <span>
+                                Observed Structure
+                            </span>
+
+                            <strong id="observedStructure">
+                                -
+                            </strong>
+
+                        </div>
+
+
+                        <div class="info-card">
+
+                            <span>
+                                Imaging Style
+                            </span>
+
+                            <strong id="imagingStyle">
+                                -
+                            </strong>
+
+                        </div>
+
+
+                        <div class="info-card">
+
+                            <span>
+                                Resolution
+                            </span>
+
+                            <strong id="resolution">
+                                -
+                            </strong>
+
+                        </div>
+
+
+                        <div class="info-card">
+
+                            <span>
+                                Brightness
+                            </span>
+
+                            <strong id="brightness">
+                                -
+                            </strong>
+
+                        </div>
+
+
+                        <div class="info-card">
+
+                            <span>
+                                Contrast
+                            </span>
+
+                            <strong id="contrast">
+                                -
+                            </strong>
+
+                        </div>
+
+
+                        <div class="info-card">
+
+                            <span>
+                                Channels
+                            </span>
+
+                            <strong id="imageChannels">
+                                -
+                            </strong>
+
+                        </div>
+
+
+                        <div class="info-card">
+
+                            <span>
+                                Estimated Objects
+                            </span>
+
+                            <strong id="estimatedObjects">
+                                -
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <div class="recommendation">
+
+                        <div class="recommendation-mark">
+                            ✓
+                        </div>
+
+                        <div>
+
+                            <strong>
+                                Recommended Analysis
+                            </strong>
+
+                            <div
+                                id="recommendationList"
+                                class="recommendation-list"
+                            ></div>
+
+                        </div>
+
+                    </div>
+
+
+                    <p
+                        id="readinessMessage"
+                        class="readiness-message"
+                    ></p>
+
+                </section>
+
+            </section>
+
+
+
+            <!-- =================================================
+                 RESULTS
+            ================================================== -->
+
+            <section
+                id="results"
+                class="workspace-section hidden"
+            >
+
+
+                <div class="section-header">
+
+                    <div>
+
+                        <span class="section-label">
+                            ANALYSIS RESULT
+                        </span>
+
+                        <h2>
+                            Cell Population Summary
+                        </h2>
+
+                    </div>
+
+
+                    <div
+                        id="analysisId"
+                        class="analysis-id"
+                    >
+                        -
+                    </div>
+
+                </div>
+
+
+
+                <!-- Metrics -->
+
+                <div class="metrics-grid">
+
+
+                    <div class="metric-card primary">
+
+                        <span>
+                            Cells Detected
+                        </span>
+
+                        <strong id="cellsDetected">
+                            0
+                        </strong>
+
+                        <small>
+                            segmented objects
+                        </small>
+
+                    </div>
+
+
+                    <div class="metric-card success">
+
+                        <span>
+                            Good Cells
+                        </span>
+
+                        <strong id="goodCells">
+                            0
+                        </strong>
+
+                        <small>
+                            passed QC
+                        </small>
+
+                    </div>
+
+
+                    <div class="metric-card warning">
+
+                        <span>
+                            Review
+                        </span>
+
+                        <strong id="reviewCells">
+                            0
+                        </strong>
+
+                        <small>
+                            require inspection
+                        </small>
+
+                    </div>
+
+
+                    <div class="metric-card">
+
+                        <span>
+                            Average Area
+                        </span>
+
+                        <strong id="averageArea">
+                            0
+                        </strong>
+
+                        <small>
+                            pixels²
+                        </small>
+
+                    </div>
+
+                </div>
+
+
+
+                <div class="secondary-metrics">
+
+                    <div>
+
+                        <span>
+                            QC Pass Rate
+                        </span>
+
+                        <strong
+                            id="qcPassRate"
+                        >
+                            -
+                        </strong>
+
+                    </div>
+
+
+                    <div>
+
+                        <span>
+                            Average Circularity
+                        </span>
+
+                        <strong
+                            id="averageCircularity"
+                        >
+                            -
+                        </strong>
+
+                    </div>
+
+
+                    <div>
+
+                        <span>
+                            Average Eccentricity
+                        </span>
+
+                        <strong
+                            id="averageEccentricity"
+                        >
+                            -
+                        </strong>
+
+                    </div>
+
+
+                    <div>
+
+                        <span>
+                            Average Intensity
+                        </span>
+
+                        <strong
+                            id="averageIntensity"
+                        >
+                            -
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- QC Pass Rate bar -->
+
+                <div class="qc-bar-track" aria-hidden="true">
+
+                    <div
+                        id="qcBarFill"
+                        class="qc-bar-fill"
+                    ></div>
+
+                </div>
+
+
+
+                <!-- =========================================
+                     VISUAL ANALYSIS
+                ========================================== -->
+
+                <div class="card visual-card">
+
+
+                    <div class="section-header compact">
+
+                        <div>
+
+                            <span class="section-label">
+                                VISUAL ANALYSIS
+                            </span>
+
+                            <h2>
+                                Segmentation & Processing
+                            </h2>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <div class="visual-grid">
+
+
+                        <!-- Original -->
+
+                        <div class="image-panel">
+
+                            <div class="image-panel-header">
+
+                                <div>
+
+                                    <span>
+                                        ORIGINAL
+                                    </span>
+
+                                    <strong>
+                                        Input Image
+                                    </strong>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="image-stage">
+
+                                <img
+                                    id="originalImage"
+                                    alt="Original microscopy image"
+                                >
+
+                            </div>
+
+                        </div>
+
+
+
+                        <!-- Segmentation -->
+
+                        <div class="image-panel">
+
+                            <div class="image-panel-header">
+
+                                <div>
+
+                                    <span>
+                                        SEGMENTATION
+                                    </span>
+
+                                    <strong>
+                                        Detected Objects
+                                    </strong>
+
+                                </div>
+
+                                <button
+                                    type="button"
+                                    class="mini-button"
+                                    id="openSegmentation"
+                                >
+                                    Open ↗
+                                </button>
+
+                            </div>
+
+
+                            <div class="image-stage">
+
+                                <img
+                                    id="segmentationImage"
+                                    alt="Cell segmentation result"
+                                >
+
+                                <div
+                                    id="segmentationEmpty"
+                                    class="image-empty"
+                                >
+                                    <span class="image-empty-icon">◫</span>
+                                    Segmentation preview unavailable.
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- Pipeline -->
+
+                    <div class="pipeline-panel">
+
+                        <div class="image-panel-header">
+
+                            <div>
+
+                                <span>
+                                    PIPELINE
+                                </span>
+
+                                <strong>
+                                    Processing Stages
+                                </strong>
+
+                            </div>
+
+                            <button
+                                type="button"
+                                class="mini-button"
+                                id="openPipeline"
+                            >
+                                Open ↗
+                            </button>
+
+                        </div>
+
+
+                        <div class="pipeline-stage">
+
+                            <img
+                                id="pipelineImage"
+                                alt="Cell analysis processing pipeline"
+                            >
+
+                            <div
+                                id="pipelineEmpty"
+                                class="image-empty"
+                            >
+                                <span class="image-empty-icon">▤</span>
+                                Pipeline preview unavailable.
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- Distributions -->
+
+                    <div class="pipeline-panel">
+
+                        <div class="image-panel-header">
+
+                            <div>
+
+                                <span>
+                                    DISTRIBUTIONS
+                                </span>
+
+                                <strong>
+                                    Feature Distributions
+                                </strong>
+
+                            </div>
+
+                            <button
+                                type="button"
+                                class="mini-button"
+                                id="openDistributions"
+                            >
+                                Open ↗
+                            </button>
+
+                        </div>
+
+
+                        <div class="pipeline-stage">
+
+                            <img
+                                id="distributionImage"
+                                alt="Cell feature distributions"
+                            >
+
+                            <div
+                                id="distributionEmpty"
+                                class="image-empty"
+                            >
+                                <span class="image-empty-icon">◔</span>
+                                Distribution chart unavailable.
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+
+            <!-- =================================================
+                 FEATURES
+            ================================================== -->
+
+            <section
+                id="features"
+                class="workspace-section hidden"
+            >
+
+
+                <div class="section-header">
+
+                    <div>
+
+                        <span class="section-label">
+                            CELL FEATURES
+                        </span>
+
+                        <h2>
+                            Object-level Measurements
+                        </h2>
+
+                        <p>
+                            Quantitative measurements extracted
+                            from each segmented object.
+                        </p>
+
+                    </div>
+
+
+                    <a
+                        id="csvDownload"
+                        class="download-button"
+                        href="#"
+                        download="cell_features.csv"
+                    >
+                        Download CSV ↓
+                    </a>
+
+                </div>
+
+
+
+                <div class="card table-card">
+
+
+                    <!-- Toolbar -->
+
+                    <div class="table-toolbar">
+
+                        <div class="table-summary">
+
+                            <strong id="featureCount">
+                                0 cells
+                            </strong>
+
+                            <span>
+                                ·
+                            </span>
+
+                            <span id="visibleFeatureCount">
+                                Showing 0
+                            </span>
+
+                        </div>
+
+
+                        <div class="table-controls">
+
+                            <input
+                                id="featureSearch"
+                                class="search-input"
+                                type="search"
+                                placeholder="Search cell ID, QC..."
+                                autocomplete="off"
+                                aria-label="Search cell measurements"
+                            >
+
+
+                            <select
+                                id="featurePageSize"
+                                class="page-size"
+                                aria-label="Rows per page"
+                            >
+
+                                <option value="10">
+                                    10 / page
+                                </option>
+
+                                <option value="25">
+                                    25 / page
+                                </option>
+
+                                <option value="50">
+                                    50 / page
+                                </option>
+
+                                <option value="100">
+                                    100 / page
+                                </option>
+
+                            </select>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- Table -->
+
+                    <div class="table-wrapper">
+
+                        <table
+                            id="cellFeaturesTable"
+                        >
+
+                            <thead>
+
+                                <tr>
+
+                                    <th data-sort="cellId" tabindex="0">
+                                        Cell ID
+                                    </th>
+
+                                    <th data-sort="area" tabindex="0">
+                                        Area
+                                    </th>
+
+                                    <th data-sort="perimeter" tabindex="0">
+                                        Perimeter
+                                    </th>
+
+                                    <th data-sort="circularity" tabindex="0">
+                                        Circularity
+                                    </th>
+
+                                    <th data-sort="eccentricity" tabindex="0">
+                                        Eccentricity
+                                    </th>
+
+                                    <th data-sort="intensity" tabindex="0">
+                                        Intensity
+                                    </th>
+
+                                    <th data-sort="qc" tabindex="0">
+                                        QC
+                                    </th>
+
+                                </tr>
+
+                            </thead>
+
+
+                            <tbody id="featuresTable">
+
+                                <tr>
+
+                                    <td
+                                        colspan="7"
+                                        class="empty-table"
+                                    >
+                                        Analyze an image to view
+                                        cell-level measurements.
+                                    </td>
+
+                                </tr>
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+
+
+                    <!-- Pagination -->
+
+                    <div
+                        class="table-pagination"
+                        id="featurePagination"
+                    >
+
+                        <button
+                            type="button"
+                            id="featurePrev"
+                            class="pagination-button"
+                            disabled
+                        >
+                            ← Previous
+                        </button>
+
+
+                        <div
+                            id="featurePageNumbers"
+                            class="page-numbers"
+                        ></div>
+
+
+                        <button
+                            type="button"
+                            id="featureNext"
+                            class="pagination-button"
+                            disabled
+                        >
+                            Next →
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+
+            <!-- =================================================
+                 FOOTER
+            ================================================== -->
+
+            <footer class="footer">
+
+                <span>
+                    Cell Analyzer
+                </span>
+
+                <span>
+                    Computer Vision · Microscopy Imaging
+                </span>
+
+            </footer>
+
+
+        </div>
+
+    </main>
+
+</div>
+
+
+<!-- =========================================================
+     IMAGE LIGHTBOX
+========================================================= -->
+
+<div
+    id="lightbox"
+    class="lightbox hidden"
+    role="dialog"
+    aria-modal="true"
+    aria-label="Image preview"
+>
+
+    <button
+        type="button"
+        id="lightboxPrev"
+        class="lightbox-nav lightbox-prev"
+        aria-label="Previous image"
+    >
+        ‹
+    </button>
+
+    <button
+        type="button"
+        id="closeLightbox"
+        class="lightbox-close"
+        aria-label="Close preview"
+    >
+        ×
+    </button>
+
+    <img
+        id="lightboxImage"
+        alt="Expanded analysis image"
+    >
+
+    <button
+        type="button"
+        id="lightboxNext"
+        class="lightbox-nav lightbox-next"
+        aria-label="Next image"
+    >
+        ›
+    </button>
+
+    <div
+        id="lightboxCaption"
+        class="lightbox-caption"
+    ></div>
+
+</div>
+
+
+<script
+    src="/app.js"
+></script>
+
+</body>
+
+</html>

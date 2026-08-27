@@ -1,0 +1,14 @@
+.venv/
+__pycache__/
+*.pyc
+
+data/uploads/*
+outputs/*
+
+benchmarks/manual_tests/images_raw/
+benchmarks/manual_tests/masks_raw/
+benchmarks/manual_tests/metadata/
+
+*.zip
+
+.env
