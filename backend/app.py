@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 from flask import Flask, jsonify, send_from_directory
@@ -246,6 +247,13 @@ def internal_server_error(error):
 
 if __name__ == "__main__":
 
+    # Render (and most hosts) set the PORT env var and require
+    # binding to 0.0.0.0. Locally, this falls back to port 5000
+    # on 127.0.0.1-equivalent 0.0.0.0, so http://127.0.0.1:5000/
+    # still works on your machine.
+    PORT = int(os.environ.get("PORT", 5000))
+    IS_PRODUCTION = "PORT" in os.environ
+
     print()
     print("=" * 65)
     print("              CELL ANALYZER")
@@ -269,18 +277,18 @@ if __name__ == "__main__":
 
     print()
     print("Frontend URL:")
-    print("http://127.0.0.1:5000/")
+    print(f"http://127.0.0.1:{PORT}/")
 
     print()
     print("Health URL:")
-    print("http://127.0.0.1:5000/api/health")
+    print(f"http://127.0.0.1:{PORT}/api/health")
 
     print()
     print("=" * 65)
     print()
 
     app.run(
-        host="127.0.0.1",
-        port=5000,
-        debug=True
+        host="0.0.0.0",
+        port=PORT,
+        debug=not IS_PRODUCTION
     )
