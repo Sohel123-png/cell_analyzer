@@ -6,3 +6,4 @@ pandas
 matplotlib
 Flask
 Flask-Cors
+gunicorn==21.2.0
