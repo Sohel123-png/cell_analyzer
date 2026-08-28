@@ -6,10 +6,15 @@
 
 [![Python](https://img.shields.io/badge/Python-3.9%2B-blue?logo=python&logoColor=white)](https://www.python.org/)
 [![Flask](https://img.shields.io/badge/Flask-REST%20API-black?logo=flask)](https://flask.palletsprojects.com/)
-[![OpenCV](https://img.shields.io/badge/OpenCV-Computer%20Vision-green?logo=opencv)](https://opencv.org/)
+[![OpenCV](https://img.shields.io/badge/OpenCV-Computer%20Vision-5C3EE8?logo=opencv&logoColor=white)](https://opencv.org/)
 [![scikit-image](https://img.shields.io/badge/scikit--image-Segmentation-orange)](https://scikit-image.org/)
 [![License](https://img.shields.io/badge/License-Portfolio%2FEducational-lightgrey)](#-license)
 [![Status](https://img.shields.io/badge/Status-Active%20Development-brightgreen)](#-current-status--limitations)
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-Render-46E3B7?logo=render&logoColor=white)](https://cell-analyzer.onrender.com)
+
+### 🔗 [**Try the Live Demo →**](https://cell-analyzer.onrender.com)
+
+> ⏳ Hosted on Render's free tier — the app may take 30–50 seconds to wake up on the first request if it's been idle. Subsequent requests are fast.
 
 **If this project helped you or looks interesting, please consider giving it a ⭐ — it genuinely helps!**
 
@@ -580,7 +585,9 @@ Expected output:
 
 ## ▶️ 15. Usage
 
-1. Open `http://127.0.0.1:5000/` in your browser
+You can either try it instantly on the **[live demo](https://cell-analyzer.onrender.com)**, or run it locally:
+
+1. Open `http://127.0.0.1:5000/` (local) or the [live demo URL](https://cell-analyzer.onrender.com) in your browser
 2. Drag & drop (or browse) a microscopy image — PNG, JPG, TIFF, or JFIF
 3. Click **Analyze Image**
 4. Review:
