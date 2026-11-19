@@ -52,31 +52,31 @@ Upload an image and the app will:
 
 **1. Upload**
 
-![Upload page](docs/screenshots/01-upload.png)
+![Upload page](assets/screenshots/01-upload.png)
 
 **2. Image understanding**
 
-![Image understanding](docs/screenshots/03-image-understanding.png)
+![Image understanding](assets/screenshots/03-image-understanding.png)
 
 **3. Segmentation result**
 
-![Segmentation](docs/screenshots/04-segmentation.png)
+![Segmentation](assets/screenshots/04-segmentation.png)
 
 **4. Population summary**
 
-![Summary](docs/screenshots/02-summary.png)
+![Summary](assets/screenshots/02-summary.png)
 
 **5. Pipeline stages**
 
-![Pipeline stages](docs/screenshots/05-pipeline.png)
+![Pipeline stages](assets/screenshots/05-pipeline.png)
 
 **6. Feature distributions**
 
-![Distributions](docs/screenshots/06-distributions.png)
+![Distributions](assets/screenshots/06-distributions.png)
 
 **7. Per-cell measurements (CSV export)**
 
-![Feature table](docs/screenshots/07-features-table.png)
+![Feature table](assets/screenshots/07-features-table.png)
 
 ### Example result
 
