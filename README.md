@@ -22,7 +22,7 @@
 [Run locally](#run-locally) •
 [Limitations](#limitations)
 
-![Upload page](assets/screenshots/1788031948513.jfif)
+![Cell Analyzer overview](assets/screenshots/00-overview.png)
 
 </div>
 
@@ -151,7 +151,7 @@ cell_analyzer/
 │       ├── feature_extraction.py
 │       └── image_understanding.py
 ├── frontend/                     # index.html, style.css, app.js
-├── docs/screenshots/             # README images
+├── assets/screenshots/             # README images
 ├── benchmark.py
 ├── benchmark_bbbc039_fixed.py
 ├── requirements.txt
