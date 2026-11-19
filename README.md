@@ -22,6 +22,8 @@
 [Run locally](#run-locally) •
 [Limitations](#limitations)
 
+![Upload page](assets/screenshots/1788031948513.jfif)
+
 </div>
 
 ---
