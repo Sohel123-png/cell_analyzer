@@ -2,507 +2,222 @@
 
 # 🔬 Cell Analyzer
 
-**An end-to-end Computer Vision platform for microscopy image analysis, cell/nuclei segmentation, quantitative feature extraction, and automated quality control.**
+**An end-to-end computer vision web app for microscopy image analysis: cell/nuclei segmentation, per-cell measurements, automated quality control and CSV export.**
 
 [![Python](https://img.shields.io/badge/Python-3.9%2B-blue?logo=python&logoColor=white)](https://www.python.org/)
 [![Flask](https://img.shields.io/badge/Flask-REST%20API-black?logo=flask)](https://flask.palletsprojects.com/)
 [![OpenCV](https://img.shields.io/badge/OpenCV-Computer%20Vision-5C3EE8?logo=opencv&logoColor=white)](https://opencv.org/)
 [![scikit-image](https://img.shields.io/badge/scikit--image-Segmentation-orange)](https://scikit-image.org/)
-[![License](https://img.shields.io/badge/License-Portfolio%2FEducational-lightgrey)](#-license)
-[![Status](https://img.shields.io/badge/Status-Active%20Development-brightgreen)](#-current-status--limitations)
-[![Live Demo](https://img.shields.io/badge/Live%20Demo-Render-46E3B7?logo=render&logoColor=white)](https://cell-analyzer.onrender.com)
+[![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
+[![Status](https://img.shields.io/badge/Status-Active%20Development-brightgreen)](#limitations)
 
-### 🔗 [**Try the Live Demo →**](https://cell-analyzer.onrender.com)
+### 🔗 [Try the Live Demo →](https://cell-analyzer.onrender.com)
 
-> ⏳ Hosted on Render's free tier — the app may take 30–50 seconds to wake up on the first request if it's been idle. Subsequent requests are fast.
+<sub>Hosted on Render's free tier. If the app has been idle, the first load can take 30–50 seconds. After that it is fast.</sub>
 
-**If this project helped you or looks interesting, please consider giving it a ⭐ — it genuinely helps!**
-
-[Overview](#-1-project-overview) •
-[Architecture](#-4-system-architecture) •
-[Pipeline](#-6-computer-vision-pipeline) •
-[API](#-10-api-endpoints) •
-[Install](#-14-installation) •
-[Contributing](#-contributing)
+[Features](#features) •
+[Demo](#demo) •
+[Pipeline](#computer-vision-pipeline) •
+[API](#api) •
+[Run locally](#run-locally) •
+[Limitations](#limitations)
 
 </div>
 
 ---
 
-## 📑 Table of Contents
+## Overview
 
-1. [Project Overview](#-1-project-overview)
-2. [Problem Statement](#-2-problem-statement)
-3. [Project Objectives](#-3-project-objectives)
-4. [System Architecture](#-4-system-architecture)
-5. [Application Architecture](#-5-application-architecture)
-6. [Computer Vision Pipeline](#-6-computer-vision-pipeline)
-7. [Project Structure](#-7-project-structure)
-8. [Frontend Workflow](#-8-frontend-workflow)
-9. [Backend Workflow](#-9-backend-workflow)
-10. [API Endpoints](#-10-api-endpoints)
-11. [Input / Output](#-11-input--output)
-12. [Example Analysis](#-12-example-analysis)
-13. [Benchmarking](#-13-benchmarking)
-14. [Installation](#-14-installation)
-15. [Usage](#-15-usage)
-16. [Technologies](#-16-technologies)
-17. [Current Status & Limitations](#-17-current-status--limitations)
-18. [Future Improvements](#-18-future-improvements)
-19. [Contributing](#-contributing)
-20. [Author](#-19-author)
+Counting cells and measuring their shape by hand is slow, subjective and hard to reproduce. Cell Analyzer turns a raw microscopy image into structured, per-cell data in one step, through either a browser dashboard or a REST API.
 
----
+Upload an image and the app will:
 
-## 🧬 1. Project Overview
+- describe the image (type, resolution, channels, brightness, contrast)
+- segment individual cells/nuclei with a classical computer vision pipeline
+- measure each object (area, perimeter, circularity, eccentricity, mean intensity)
+- flag every object as `Good` or `Review` with a QC check
+- show the segmentation, the pipeline stages and feature distributions
+- export all measurements as a CSV file
 
-**Cell Analyzer** is a locally-hosted web application that lets a user upload a microscopy image and automatically:
+## Features
 
-- Understands the image (type, resolution, channels, brightness, contrast)
-- Segments individual cells/nuclei using a classical computer-vision pipeline
-- Extracts per-object quantitative features (area, circularity, eccentricity, intensity)
-- Flags each object with a Quality Control (QC) status
-- Visualizes the full pipeline, segmentation mask, and feature distributions
-- Exports all per-cell measurements as a downloadable CSV
+- **Classical CV pipeline:** Otsu/adaptive threshold → morphology → distance transform → watershed
+- **High-bit-depth support:** 8/12/16-bit TIFF, plus PNG, JPG/JPEG and JFIF (up to 50 MB)
+- **Flask REST API** that any client can call (web UI, script or another service)
+- **Browser dashboard** with searchable, paginated feature table and CSV download
+- **Automated QC** to flag low-confidence objects for human review
+- **Benchmark script** for comparing against annotated public datasets (BBBC039)
 
-It is built as a **full-stack computer vision application** — not just a script — with a Flask REST API backend and a browser-based dashboard frontend.
+## Demo
 
----
+**1. Upload**
 
-## ❓ 2. Problem Statement
+![Upload page](docs/screenshots/01-upload.png)
 
-Manual analysis of microscopy images (counting cells, measuring shape/size, flagging poor-quality detections) is:
+**2. Image understanding**
 
-- **Slow** — manual annotation of a single image can take significant time
-- **Subjective** — results vary between annotators
-- **Not reproducible** — no consistent, auditable pipeline
-- **Hard to scale** — doesn't work well across large image batches
+![Image understanding](docs/screenshots/03-image-understanding.png)
 
-Cell Analyzer addresses this by providing a **reproducible, automated, end-to-end pipeline** that goes from raw microscopy image → structured, exportable, per-cell data — accessible through both a UI and a REST API.
+**3. Segmentation result**
 
----
+![Segmentation](docs/screenshots/04-segmentation.png)
 
-## 🎯 3. Project Objectives
+**4. Population summary**
 
-- Build a complete image-understanding + segmentation + feature-extraction pipeline using classical CV techniques
-- Support real-world microscopy formats, including high-bit-depth TIFF (8/12/16-bit)
-- Expose the pipeline via a clean REST API so it can be integrated into other systems
-- Provide a human-friendly dashboard for upload, visualization, and CSV export
-- Include an automated QC layer to flag low-confidence detections for human review
-- Provide a benchmarking workflow against public annotated microscopy datasets
+![Summary](docs/screenshots/02-summary.png)
 
----
+**5. Pipeline stages**
 
-## 🏗️ 4. System Architecture
+![Pipeline stages](docs/screenshots/05-pipeline.png)
 
-```text
-                         CELL ANALYZER
-                              │
-                 ┌────────────┴────────────┐
-                 │                         │
-                 ▼                         ▼
-          Web Application             REST API
-                 │                         │
-        ┌────────┴────────┐                │
-        │ HTML / CSS / JS │                │
-        └────────┬────────┘                │
-                 │                         ▼
-                 │                    Flask Backend
-                 │                         │
-                 │                         ▼
-                 │                 Analysis Service
-                 │                         │
-                 │         ┌───────────────┼───────────────┐
-                 │         ▼               ▼               ▼
-                 │   Preprocessing   Segmentation   Feature Extraction
-                 │         │               │               │
-                 │         └───────────────┼───────────────┘
-                 │                         ▼
-                 │                  Quality Control
-                 │                         │
-                 └─────────────────────────┤
-                                           ▼
-                                  Analysis Results
-                                           │
-                     ┌─────────────────────┼─────────────────────┐
-                     ▼                     ▼                     ▼
-                 Cell Count          Cell Features          Visualizations
-                 Area                Circularity             Segmentation
-                 Intensity           Eccentricity            Pipeline
-                 QC Status                                    Distributions
-```
+**6. Feature distributions**
 
----
+![Distributions](docs/screenshots/06-distributions.png)
 
-## 🖥️ 5. Application Architecture
+**7. Per-cell measurements (CSV export)**
+
+![Feature table](docs/screenshots/07-features-table.png)
+
+### Example result
+
+Sample image: fluorescence-style nuclei, 360 × 360 px, 3 channels.
+
+| Metric | Value |
+|---|---|
+| Cells detected | 17 |
+| Good / Review | 16 / 1 |
+| QC pass rate | 94.1% |
+| Average area | 1,666.82 px² |
+| Average circularity | 0.822 |
+| Average eccentricity | 0.698 |
+| Average intensity | 154.72 |
+
+First rows of the exported CSV:
+
+| id | area | perimeter | circularity | eccentricity | mean_intensity | qc_status |
+|---|---|---|---|---|---|---|
+| 1 | 5,840 | 290.98 | 0.867 | 0.754 | 149.38 | Good |
+| 2 | 523 | 87.56 | 0.857 | 0.705 | 177.04 | Good |
+| 3 | 851 | 117.84 | 0.770 | 0.792 | 178.64 | Good |
+
+## Architecture
 
 ```text
-Browser
-  ↓
-Frontend (HTML/CSS/JS)
-  ↓
-REST API  (multipart/form-data)
-  ↓
-Flask Backend
-  ↓
+Browser (HTML / CSS / JS)
+        │  multipart/form-data
+        ▼
+Flask REST API  (POST /api/analyze)
+        ▼
 Analysis Service
+  ├── Image Understanding
   ├── Preprocessing
   ├── Segmentation
   ├── Feature Extraction
   └── Quality Control
-  ↓
-Results (JSON + Visualizations + CSV)
+        ▼
+JSON summary + visualizations + CSV
 ```
 
-The frontend never processes images directly — it only uploads and renders results. All computer vision work happens server-side, which keeps the API stateless and reusable by any client (web UI, script, another service).
+The frontend only uploads the image and renders results. All image processing happens server-side, so the API stays stateless and reusable.
 
----
-
-## 🧠 6. Computer Vision Pipeline
-
-```text
-                MICROSCOPY IMAGE
-                       │
-                       ▼
-              Image Understanding
-                       │
-                       ▼
-               Channel Selection
-                       │
-                       ▼
-             Intensity Normalization
-                       │
-                       ▼
-                  Denoising
-                       │
-                       ▼
-              Adaptive Threshold
-                       │
-                       ▼
-             Morphological Cleanup
-                       │
-                       ▼
-             Distance Transform
-                       │
-                       ▼
-          Watershed Instance Segmentation
-                       │
-                       ▼
-             Object Feature Extraction
-                       │
-                       ▼
-                  QC Analysis
-                       │
-              ┌────────┴────────┐
-              ▼                 ▼
-          Good Cells         Review Cells
-              │                 │
-              └────────┬────────┘
-                       ▼
-                Results Dashboard
-```
-
-### Pipeline stage summary
+## Computer Vision Pipeline
 
 | Stage | What happens |
 |---|---|
-| **Image Understanding** | Detects format, bit-depth, channels, brightness/contrast, and whether the image looks "microscopy-like" and analysis-ready |
-| **Channel Selection** | Picks the most informative channel for grayscale/multi-channel images |
-| **Intensity Normalization** | Rescales 8/12/16-bit intensity ranges into a consistent working range |
-| **Denoising** | Gaussian smoothing to suppress sensor/acquisition noise |
-| **Adaptive Thresholding** | Separates foreground (cells) from background using Otsu/adaptive methods |
-| **Morphological Cleanup** | Removes small artifacts, fills holes, smooths object boundaries |
-| **Distance Transform** | Computes distance-to-background map, used to separate touching cells |
-| **Watershed Segmentation** | Splits touching/clustered cells into individual instances |
-| **Feature Extraction** | Computes per-object area, perimeter, circularity, eccentricity, mean intensity |
-| **Quality Control** | Classifies each detected object as `Good` or `Review` based on shape/size heuristics |
+| Image understanding | Detects format, bit depth, channels, brightness and contrast, and checks if the image looks analysis-ready |
+| Channel selection | Picks the most informative channel |
+| Intensity normalization | Rescales 8/12/16-bit data to a consistent range |
+| Denoising | Gaussian smoothing to reduce noise |
+| Thresholding | Otsu/adaptive threshold separates cells from background |
+| Morphological cleanup | Removes small artifacts, fills holes, smooths boundaries |
+| Distance transform | Distance-to-background map used to separate touching cells |
+| Watershed | Splits clustered cells into individual instances |
+| Feature extraction | Area, perimeter, circularity, eccentricity, mean intensity per object |
+| Quality control | Labels each object `Good` or `Review` using shape/size heuristics |
 
----
-
-## 📁 7. Project Structure
+## Project Structure
 
 ```text
 cell_analyzer/
-│
 ├── backend/
-│   ├── app.py                       # Flask app entrypoint (serves API + frontend)
-│   ├── routes/
-│   │   └── analysis.py              # /api/analyze, /api/health routes
-│   ├── services/
-│   │   └── analysis_service.py      # Orchestrates the full analysis pipeline
+│   ├── app.py                    # Flask entrypoint (serves API + frontend)
+│   ├── routes/analysis.py        # /api/analyze, /api/health
+│   ├── services/analysis_service.py
 │   └── core/
-│       ├── preprocessing.py         # Normalization, denoising, thresholding
-│       ├── segmentation.py          # Distance transform + watershed
-│       ├── feature_extraction.py    # Morphological / intensity features
-│       └── image_understanding.py   # Image characteristics & readiness checks
-│
-├── frontend/
-│   ├── index.html
-│   ├── style.css
-│   └── app.js                       # Upload, API calls, result rendering
-│
-├── data/
-│   └── uploads/                     # Uploaded images (runtime)
-│
-├── outputs/                         # Generated visualizations & CSVs
-│
+│       ├── preprocessing.py
+│       ├── segmentation.py
+│       ├── feature_extraction.py
+│       └── image_understanding.py
+├── frontend/                     # index.html, style.css, app.js
+├── docs/screenshots/             # README images
 ├── benchmark.py
-├── benchmark_bbbc039_fixed.py       # Benchmark against BBBC039 dataset
+├── benchmark_bbbc039_fixed.py
 ├── requirements.txt
-├── pyproject.toml
-├── .gitignore
-└── README.md
+└── pyproject.toml
 ```
 
-### Module responsibilities
+## API
 
-| Module | Responsibility |
-|---|---|
-| `app.py` | Flask application setup + serves frontend and API |
-| `routes/analysis.py` | Defines the analysis API endpoints |
-| `services/analysis_service.py` | End-to-end orchestration of the analysis pipeline |
-| `core/preprocessing.py` | Loading, normalization, denoising, thresholding |
-| `core/segmentation.py` | Distance transform + watershed instance segmentation |
-| `core/feature_extraction.py` | Morphological and intensity feature computation |
-| `core/image_understanding.py` | Basic image characteristics and analysis-readiness |
-| `frontend/app.js` | Upload handling, API calls, dashboard rendering |
-
----
-
-## 🌐 8. Frontend Workflow
-
-```text
-┌──────────────────────────────────────────────────────────────┐
-│                     CELL ANALYZER UI                          │
-├──────────────────────────────────────────────────────────────┤
-│                                                                │
-│   Upload Image                                                │
-│        │                                                      │
-│        ▼                                                      │
-│   Image Preview                                                │
-│        │                                                      │
-│        ▼                                                      │
-│   Analyze Image                                                │
-│        │                                                      │
-│        ▼                                                      │
-│   Image Understanding                                          │
-│        │                                                      │
-│        ▼                                                      │
-│   Analysis Summary                                             │
-│        │                                                      │
-│        ├───────────────┬───────────────────┐                  │
-│        ▼               ▼                   ▼                  │
-│   Segmentation      Pipeline          Distributions            │
-│        │               │                   │                  │
-│        └───────────────┴───────────────────┘                  │
-│                        │                                       │
-│                        ▼                                       │
-│                  Cell Features                                 │
-│                        │                                       │
-│                        ▼                                       │
-│                    CSV Export                                  │
-│                                                                │
-└──────────────────────────────────────────────────────────────┘
-```
-
-### UI Preview (mockup)
-
-```text
-┌──────────────────────────────────────────────────────────────┐
-│ 🔬 CELL ANALYZER                              System Ready    │
-├──────────────────────────────────────────────────────────────┤
-│                                                                │
-│  MICROSCOPY ANALYSIS                                          │
-│  Upload Microscopy Image                                      │
-│                                                                │
-│       ┌───────────────────────────────────────┐               │
-│       │                                       │               │
-│       │       Drop your image here            │               │
-│       │       or click to browse              │               │
-│       │                                       │               │
-│       │       PNG · JPG · TIFF · JFIF         │               │
-│       └───────────────────────────────────────┘               │
-│                                                                │
-│                 [ Analyze Image → ]                            │
-│                                                                │
-├──────────────────────────────────────────────────────────────┤
-│ IMAGE UNDERSTANDING                                            │
-│                                                                │
-│ Image Type        Microscopy-like image                       │
-│ Resolution         1024 × 1024                                │
-│ Channels           3                                           │
-│ Brightness         Dark                                        │
-│ Contrast           Moderate                                    │
-│                                                                │
-├──────────────────────────────────────────────────────────────┤
-│ ANALYSIS SUMMARY                                               │
-│                                                                │
-│     17              14              3               82%       │
-│   CELLS          GOOD           REVIEW          QC PASS        │
-│                                                                │
-│ Avg Area       Circularity      Eccentricity     Intensity    │
-│ 22,167 px²         0.658            0.635          204.66      │
-│                                                                │
-├──────────────────────────────────────────────────────────────┤
-│ VISUAL ANALYSIS                                                │
-│                                                                │
-│ Original Image              Segmentation Result                │
-│                                                                │
-│      [ IMAGE ]                    [ MASK ]                     │
-│                                                                │
-├──────────────────────────────────────────────────────────────┤
-│ CELL FEATURES                                                  │
-│                                                                │
-│ ID │ Area │ Circularity │ Eccentricity │ Intensity │ QC        │
-│ 1  │ ...  │ ...         │ ...          │ ...       │ Good      │
-│ 2  │ ...  │ ...         │ ...          │ ...       │ Review    │
-│                                                                │
-│                    [ Download CSV ]                            │
-└──────────────────────────────────────────────────────────────┘
-```
-
-> 💡 **Tip:** Replace the ASCII mockup above with an actual screenshot/GIF of your running app (`docs/screenshot.png`) — repos with real screenshots get noticeably more stars and engagement.
-
----
-
-## ⚙️ 9. Backend Workflow
-
-```text
-USER
- │
- │ Upload microscopy image
- ▼
-FRONTEND
- │
- │ multipart/form-data
- ▼
-POST /api/analyze
- │
- ▼
-FLASK ROUTE
- │
- ▼
-ANALYSIS SERVICE
- │
- ├── Image Understanding
- ├── Preprocessing
- ├── Segmentation
- ├── Feature Extraction
- └── QC
- │
- ▼
-RESULT OBJECT
- │
- ├── Summary Metrics
- ├── Visualization Paths
- ├── Image Understanding
- └── Analysis ID
- │
- ▼
-FRONTEND
- │
- ├── Dashboard
- ├── Segmentation
- ├── Pipeline
- ├── Feature Table
- └── CSV Download
-```
-
----
-
-## 🔌 10. API Endpoints
-
-### Health Check
+**Health check**
 
 ```http
 GET /api/health
 ```
 
-**Response**
-
 ```json
-{
-  "service": "cell-analyzer",
-  "status": "ok"
-}
+{ "service": "cell-analyzer", "status": "ok" }
 ```
 
-### Analyze an Image
+**Analyze an image**
 
 ```http
 POST /api/analyze
 Content-Type: multipart/form-data
 ```
 
-**Form field**
-
 | Field | Type | Description |
 |---|---|---|
-| `image` | file | Microscopy image (PNG, JPG/JPEG, JFIF, or TIFF) |
-
-**Example (Python)**
+| `image` | file | PNG, JPG/JPEG, JFIF or TIFF (max 50 MB) |
 
 ```python
 import requests
 
-with open("example.tif", "rb") as image_file:
-    response = requests.post(
+with open("example.tif", "rb") as f:
+    r = requests.post(
         "http://127.0.0.1:5000/api/analyze",
-        files={"image": image_file},
+        files={"image": f},
         timeout=120,
     )
 
-print(response.status_code)
-print(response.json())
+print(r.status_code)
+print(r.json())
 ```
 
-The response includes an analysis ID, summary metrics, image-understanding details, and generated output filenames (visualizations + CSV).
+The response contains an analysis ID, summary metrics, image-understanding details and the generated output filenames (visualizations and CSV).
 
----
+## Run locally
 
-## 📥 11. Input / Output
+```bash
+git clone https://github.com/Sohel123-png/cell_analyzer.git
+cd cell_analyzer
 
-**Input**
-- Formats: PNG, JPG/JPEG, JFIF, TIFF
-- Bit depth: 8-bit, 12-bit, 16-bit
-- Color: grayscale or multi-channel
+python -m venv .venv
+# Windows PowerShell:  .venv\Scripts\Activate.ps1
+# macOS / Linux:       source .venv/bin/activate
 
-**Output**
-- Segmentation mask (visual overlay)
-- Full pipeline stage visualization
-- Feature distribution plots
-- Per-cell CSV report:
-
-| id | area | perimeter | circularity | eccentricity | mean_intensity | qc_status |
-|---|---|---|---|---|---|---|
-| 1 | 21,340 | 542.1 | 0.71 | 0.58 | 198.2 | Good |
-| 2 | 8,102 | 320.4 | 0.41 | 0.89 | 231.7 | Review |
-
----
-
-## 🧪 12. Example Analysis
-
-```text
-Input:  microscopy_sample.tif  (1024 × 1024, 3 channels)
-
-Detected Cells:        17
-Good Cells:             14
-Review Cells:            3
-QC Pass Rate:           82%
-
-Avg. Area:          22,167 px²
-Avg. Circularity:      0.658
-Avg. Eccentricity:     0.635
-Avg. Intensity:        204.66
+python -m pip install -r requirements.txt
+python -m backend.app
 ```
 
-> 💡 Add real before/after images here (`original.png` vs `segmentation.png`) once you have sample outputs — visual proof of results is one of the biggest drivers of GitHub stars.
+Open `http://127.0.0.1:5000/`. To verify the API:
 
----
+```bash
+python -c "import requests; print(requests.get('http://127.0.0.1:5000/api/health').json())"
+```
 
-## 📊 13. Benchmarking
+## Benchmarking
 
-The repository includes a benchmark workflow to evaluate segmentation quality against public, annotated microscopy datasets (e.g. **BBBC039**).
+`benchmark_bbbc039_fixed.py` evaluates segmentation against the public BBBC039 dataset. The dataset is not included in this repo, so download it separately and place it in the local benchmark folders.
 
 ```bash
 python benchmark_bbbc039_fixed.py `
@@ -511,214 +226,43 @@ python benchmark_bbbc039_fixed.py `
   --output outputs\bbbc039_test.csv
 ```
 
-> ⚠️ **Note on current benchmark results:** Benchmarking is an active development area. The current workflow reports object-count and pixel-level metrics, but the prediction side is derived from the *rendered segmentation visualization* rather than a dedicated raw instance-label endpoint. Treat current numbers as **preliminary engineering metrics**, not validated biological accuracy. See [Limitations](#-17-current-status--limitations) for details.
+> The predictions are currently derived from the rendered segmentation image, not from a raw instance-label output. Treat the numbers as preliminary engineering metrics, not validated accuracy.
 
-### Dataset
+## Technologies
 
-Benchmark datasets are **intentionally not committed** to this repository. Download the relevant public dataset separately and place image/annotation files in the local benchmark directories. Large datasets and generated outputs should stay out of Git history (see `.gitignore`).
+- **Backend:** Python, Flask, OpenCV, NumPy, SciPy, scikit-image, Pandas
+- **Frontend:** HTML5, CSS3, vanilla JavaScript
+- **CV techniques:** Otsu/adaptive thresholding, morphology, Euclidean distance transform, watershed, connected-component analysis
 
----
+## Limitations
 
-## 🚀 14. Installation
+This is a portfolio/engineering project, not a validated scientific or clinical tool.
 
-### 1. Clone the repository
+- Segmentation quality depends on staining, illumination, cell density and image quality.
+- It uses classical CV, not a trained deep-learning model. In the sample above, one elongated nucleus is split into two segments and a cluster of small bright fragments is not segmented.
+- Image-understanding labels (such as "microscopy-like") are heuristic.
+- Objects marked `Review` should be checked by a human.
+- Benchmark metrics are preliminary (see above).
 
-```bash
-git clone https://github.com/Sohel123-png/cell_analyzer.git
-cd cell_analyzer
-```
+## Roadmap
 
-### 2. Create a virtual environment
-
-Using standard Python:
-
-```bash
-python -m venv .venv
-```
-
-Activate on Windows PowerShell:
-
-```powershell
-.venv\Scripts\Activate.ps1
-```
-
-Or using `uv`:
-
-```bash
-uv venv
-```
-
-### 3. Install dependencies
-
-```bash
-python -m pip install -r requirements.txt
-```
-
-### 4. Start the application
-
-```bash
-python -m backend.app
-```
-
-Open your browser at:
-
-```
-http://127.0.0.1:5000/
-```
-
-### 5. Verify the API
-
-```bash
-python -c "import requests; r=requests.get('http://127.0.0.1:5000/api/health'); print(r.status_code); print(r.json())"
-```
-
-Expected output:
-
-```json
-{
-  "service": "cell-analyzer",
-  "status": "ok"
-}
-```
-
----
-
-## ▶️ 15. Usage
-
-You can either try it instantly on the **[live demo](https://cell-analyzer.onrender.com)**, or run it locally:
-
-1. Open `http://127.0.0.1:5000/` (local) or the [live demo URL](https://cell-analyzer.onrender.com) in your browser
-2. Drag & drop (or browse) a microscopy image — PNG, JPG, TIFF, or JFIF
-3. Click **Analyze Image**
-4. Review:
-   - Image Understanding summary
-   - Analysis Summary (counts, QC pass rate, averages)
-   - Segmentation & pipeline visualizations
-   - Feature distribution plots
-   - Per-cell feature table
-5. Download results as CSV
-
----
-
-## 🛠️ 16. Technologies
-
-**Backend**
-- Python
-- Flask
-- OpenCV
-- NumPy
-- SciPy
-- scikit-image
-- Pandas
-
-**Frontend**
-- HTML5
-- CSS3
-- Vanilla JavaScript
-
-**Computer Vision**
-- Otsu / adaptive thresholding
-- Morphological image processing
-- Euclidean distance transform
-- Watershed segmentation
-- Connected-component analysis
-
----
-
-## ⚠️ 17. Current Status & Limitations
-
-This project is in **active development** and should be treated as an engineering/portfolio project, not a clinical or production-validated tool.
-
-- Segmentation quality depends heavily on image modality, staining, illumination, object density, and overall image quality
-- The current pipeline uses **classical computer vision**, not a trained deep-learning segmentation model
-- Image-understanding labels (e.g. "microscopy-like", brightness/contrast descriptors) are **heuristic**, not biological diagnosis
-- Objects flagged `Review` should always be inspected by a human
-- Benchmark metrics (BBBC039, etc.) are **preliminary engineering metrics** — the prediction side is currently derived from rendered segmentation output rather than a dedicated raw instance-label endpoint, so results should not be interpreted as validated accuracy
-- Not intended for clinical, diagnostic, or production biological research use
-
----
-
-## 🔮 18. Future Improvements
-
-- [ ] Raw instance-mask output directly from the backend (for rigorous benchmarking)
-- [ ] More rigorous instance-level matching metrics (IoU-based matching, precision/recall)
-- [ ] Better modality-aware preprocessing (brightfield vs fluorescence vs phase-contrast)
-- [ ] Automated parameter selection based on detected image characteristics
-- [ ] Deep-learning segmentation models (U-Net / Cellpose-style approaches)
-- [ ] Confidence scoring and uncertainty visualization
-- [ ] Batch-processing support for multiple images
+- [ ] Raw instance-mask output from the backend for rigorous benchmarking
+- [ ] IoU-based instance matching (precision / recall)
+- [ ] Modality-aware preprocessing (brightfield, fluorescence, phase contrast)
+- [ ] Deep-learning backend (U-Net / Cellpose)
+- [ ] Batch processing for multiple images
 - [ ] Docker deployment
-- [ ] Automated benchmark reports and experiment tracking
 
----
+## Contributing
 
-## 🌟 Why This Project
+Issues and pull requests are welcome. Fork the repo, create a branch (`git checkout -b feature/my-feature`), commit, push and open a pull request. Good first areas: Docker packaging, batch upload, better benchmark metrics, and a deep-learning segmentation backend.
 
-Cell Analyzer was built to demonstrate a **complete, end-to-end computer vision system** — not a single isolated image-processing script.
+If you find the project useful, a ⭐ helps others discover it.
 
-```text
-Image Understanding
-        +
-   Preprocessing
-        +
-   Segmentation
-        +
-Feature Engineering
-        +
- Quality Control
-        +
-   REST API
-        +
-    Web UI
-        +
-  Benchmarking
-        =
- A full CV product
-```
+## Author
 
-**Engineering highlights:**
+**Sohel Ali**: [GitHub](https://github.com/Sohel123-png) · [LinkedIn](https://www.linkedin.com/in/sohel-ali-6435253a8/) · sayyedsohelali448@gmail.com
 
-- Built an end-to-end microscopy image analysis platform
-- Implemented a classical computer-vision segmentation pipeline (thresholding → morphology → distance transform → watershed)
-- Added support for high-bit-depth TIFF microscopy images (8/12/16-bit)
-- Designed a Flask REST API for image analysis
-- Built a browser-based analysis dashboard using vanilla JavaScript
-- Added per-object morphological and intensity measurements
-- Added automated QC classification and downloadable CSV reports
-- Added a benchmark workflow using annotated public microscopy datasets
+## License
 
----
-
-## 🤝 Contributing
-
-Contributions, issues, and feature requests are welcome!
-
-1. **Fork** the repository
-2. Create your feature branch: `git checkout -b feature/amazing-feature`
-3. Commit your changes: `git commit -m "Add amazing feature"`
-4. Push to the branch: `git push origin feature/amazing-feature`
-5. Open a **Pull Request**
-
-Good first areas to contribute:
-- Deep-learning segmentation backend (U-Net / Cellpose integration)
-- Docker packaging
-- Improved benchmark metrics (instance-level IoU matching)
-- Batch upload support
-- UI/UX improvements to the dashboard
-
-If you find this project useful, please ⭐ **star the repo** — it helps others discover it and motivates continued development.
-
----
-
-## 👤 19. Author
-
-**Sohel Ali**
-GitHub: [@Sohel123-png](https://github.com/Sohel123-png)
-
----
-
-## 📄 License
-
-This project is currently provided for **educational and portfolio use**. Add a formal open-source license (e.g. MIT, Apache-2.0) before distributing it as a reusable package.
-
-</div>
+Released under the [MIT License](LICENSE).
